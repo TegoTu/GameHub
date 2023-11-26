@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wybór Gry</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #282c35;
+            color: #fff;
+            text-align: center;
+        }
+
+        header {
+            background-color: #1a1e24;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+            border-bottom: 2px solid #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #login-section {
+            display: flex;
+            align-items: center;
+        }
+
+        #login-btn, #signup-btn {
+            margin-left: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            text-decoration: none;
+        }
+
+        #login-btn:hover, #signup-btn:hover {
+            background-color: #45a049;
+        }
+
+        #game-selection {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-button {
+            position: relative;
+            margin: 20px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: #1a1e24;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, color 0.3s ease;
+            overflow: hidden;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+        }
+
+        .game-button img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            margin-bottom: 10px;
+            border-radius: 20%;
+        }
+
+        .game-button:hover {
+            background-color: #111;
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        .game-button:hover img {
+            opacity: 0.5;
+        }
+
+        .game-button:focus {
+            outline: none;
+        }
+
+        .game-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+    </style>
+</head>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+
+        loginBtn.addEventListener('click', function () {
+            loginForm.classList.toggle('hidden');
+            signupForm.classList.add('hidden');
+        });
+
+        signupBtn.addEventListener('click', function () {
+            signupForm.classList.toggle('hidden');
+            loginForm.classList.add('hidden');
+        });
+    });
+</script>
+<body>
+    <header class="fade-in">
+        <h1>Wybierz Grę</h1>
+        <div id="login-section">
+            <div id="login-btn">Zaloguj się</div>
+            <div id="signup-btn">Załóż konto</div>
+        </div>
+    </header>
+
+    <div id="game-selection" class="fade-in">
+        <a href="milionerzy1.html" class="game-button">
+            <img src="2.jpeg" alt="Milionerzy">
+            Milionerzy
+        </a>
+        <a href="kolko.html" class="game-button">
+            <img src="1.jpg" alt="Kółko-Krzyżyk">
+            Kółko-Krzyżyk
+        </a>
+        <a href="Zgadywanie.html" class="game-button">
+            <img src="5.jpg" alt="Zgadywanie">
+            Zgadywanie
+        </a>
+        <a href="wisielec.html" class="game-button">
+            <img src="3.png" alt="Wisielec">
+            Wisielec
+        </a>
+        <a href="statki.html" class="game-button">
+            <img src="4.png" alt="Statki">
+            Statki
+        </a>
+        <a href="liczby.html" class="game-button">
+            <img src="gliczby.jpg" alt="Zgadnij liczbe">
+            Zgadnij liczbe
+        </a>
+        <a href="miasta.html" class="game-button">
+            <img src="państwa-miasta.jpg" alt="Państwa Miasta">
+            Państwa Miasta
+        </a>
+    </div>
+</body>
+</html>
