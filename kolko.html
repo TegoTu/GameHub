@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kółko-Krzyżyk</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .cell:hover {
+            background-color: #c0c0c0;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        #reset-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #reset-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kółko-Krzyżyk</h1>
+    </header>
+
+    <div id="game-board"></div>
+    <div id="message">Kolej gracza: X</div>
+    <button id="reset-button">Zacznij od nowa</button>
+
+    <script>
+        const board = document.getElementById('game-board');
+        const messageElement = document.getElementById('message');
+        const resetButton = document.getElementById('reset-button');
+        let currentPlayer = 'X';
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+
+        function createCell(index) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.setAttribute('data-index', index);
+            cell.addEventListener('click', handleCellClick);
+            return cell;
+        }
+
+        function handleCellClick(event) {
+            if (!gameActive) return;
+
+            const index = event.target.getAttribute('data-index');
+
+            if (gameBoard[index] === '') {
+                gameBoard[index] = currentPlayer;
+                event.target.textContent = currentPlayer;
+                checkWinner();
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                updateMessage();
+            }
+        }
+
+        function checkWinner() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (gameBoard[a] !== '' && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                    gameActive = false;
+                    highlightWinner(pattern);
+                    showMessage(`Gracz ${gameBoard[a]} wygrywa!`);
+                    return;
+                }
+            }
+
+            if (!gameBoard.includes('')) {
+                gameActive = false;
+                showMessage('Remis! Brak wolnych pól.');
+            }
+        }
+
+        function highlightWinner(pattern) {
+            for (const index of pattern) {
+                const cell = document.querySelector(`.cell[data-index="${index}"]`);
+                cell.style.backgroundColor = '#4CAF50';
+                cell.style.color = 'white';
+            }
+        }
+
+        function showMessage(message) {
+            messageElement.textContent = message;
+        }
+
+        function updateMessage() {
+            messageElement.textContent = `Kolej gracza: ${currentPlayer}`;
+        }
+
+        function resetGame() {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            messageElement.textContent = 'Kolej gracza: X';
+
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.style.backgroundColor = '#ddd';
+                cell.style.color = 'black';
+            });
+        }
+
+        resetButton.addEventListener('click', resetGame);
+
+        // Initialize the game board
+        for (let i = 0; i < 9; i++) {
+            const cell = createCell(i);
+            board.appendChild(cell);
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Milionerzy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+
+        #quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        #question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .answer {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #ddd;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .answer:hover {
+            background-color: #c0c0c0;
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+        }
+
+        #lifelines {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        #lifelines button {
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #lifelines button:hover {
+            background-color: #45a049;
+        }
+
+        #message-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .message {
+            font-size: 1.2em;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #progress-bar {
+            margin-top: 20px;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #progress-bar-inner {
+            height: 100%;
+            width: 0;
+            background-color: #4CAF50;
+            transition: width 0.5s ease;
+        }
+
+        #strona-glowna-button {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .strona-glowna-btn {
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .strona-glowna-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startQuiz() {
+            shuffleArray(questions);
+            showQuestion();
+            updateProgressBar();
+            startTimer();
+        }
+
+        function showQuestion() {
+            const current = questions[currentQuestion];
+            questionElement.textContent = current.question;
+
+            answersElement.innerHTML = "";
+            current.answers.forEach((answer, index) => {
+                const answerElement = document.createElement("div");
+                answerElement.classList.add("answer");
+                answerElement.textContent = answer;
+                answerElement.addEventListener("click", () => checkAnswer(index));
+                answersElement.appendChild(answerElement);
+            });
+        }
+
+        function checkAnswer(index) {
+            stopTimer();
+
+            if (index === questions[currentQuestion].correctAnswer) {
+                score += 1000;
+                scoreElement.textContent = `Aktualna wygrana: $${score}`;
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                } else {
+                    showMessage("Gratulacje! Wygrałeś milion!", true);
+                    resetGame();
+                }
+            } else {
+                showMessage("Niestety, zła odpowiedź. Zaczynasz od początku.", false);
+                resetGame();
+            }
+
+            showQuestion();
+            updateProgressBar();
+            startTimer();
+        }
+
+        function resetGame() {
+            stopTimer();
+            currentQuestion = 0;
+            score = 0;
+            showQuestion();
+            scoreElement.textContent = `Aktualna wygrana: $${score}`;
+            resetLifelines();
+            updateProgressBar();
+            startTimer();
+        }
+
+        function resetLifelines() {
+            const answerElements = document.querySelectorAll('.answer');
+            answerElements.forEach((answer) => {
+                answer.style.display = 'block';
+            });
+
+            const lifelineButtons = document.querySelectorAll('#lifelines button');
+            lifelineButtons.forEach((button) => {
+                button.disabled = false;
+            });
+
+            const messageContainer = document.getElementById("message-container");
+            messageContainer.innerHTML = "";
+        }
+
+        function showMessage(message, isSuccess) {
+            const messageContainer = document.getElementById("message-container");
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.style.backgroundColor = isSuccess ? "#4CAF50" : "#e74c3c";
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+        }
+
+        function useFiftyFifty() {
+            const currentAnswers = questions[currentQuestion].answers;
+            const correctAnswerIndex = questions[currentQuestion].correctAnswer;
+
+            let randomIncorrectIndex = getRandomIncorrectIndex(correctAnswerIndex);
+            let incorrectAnswers = [randomIncorrectIndex];
+
+            incorrectAnswers.push(correctAnswerIndex);
+
+            const answerElements = document.querySelectorAll('.answer');
+            answerElements.forEach((answer, index) => {
+                if (!incorrectAnswers.includes(index)) {
+                    answer.style.display = 'none';
+                }
+            });
+
+            document.querySelector('#lifelines button:nth-child(1)').disabled = true;
+        }
+
+        function getRandomIncorrectIndex(correctIndex) {
+            let randomIncorrectIndex;
+            do {
+                randomIncorrectIndex = Math.floor(Math.random() * 4);
+            } while (randomIncorrectIndex === correctIndex);
+
+            return randomIncorrectIndex;
+        }
+
+        function usePhoneAFriend() {
+            const currentAnswers = questions[currentQuestion].answers;
+            const correctAnswerIndex = questions[currentQuestion].correctAnswer;
+
+            const friendAnswer = currentAnswers[correctAnswerIndex];
+
+            alert(`Przyjaciel mówi: "${friendAnswer}"`);
+
+            document.querySelector('#lifelines button:nth-child(2)').disabled = true;
+
+            showMessage("Użyłeś Telefonu do Przyjaciela! Przyjaciel podaje poprawną odpowiedź.", true);
+        }
+
+        function useAskTheAudience() {
+            const currentAnswers = questions[currentQuestion].answers;
+            const correctAnswerIndex = questions[currentQuestion].correctAnswer;
+
+            const audiencePercentages = [];
+            let remainingPercentage = 100;
+
+            for (let i = 0; i < 4; i++) {
+                if (i === correctAnswerIndex) {
+                    audiencePercentages.push(Math.floor(Math.random() * 70) + 30);
+                } else {
+                    const randomPercentage = Math.floor(Math.random() * remainingPercentage);
+                    audiencePercentages.push(randomPercentage);
+                    remainingPercentage -= randomPercentage;
+                }
+            }
+
+            alert(`Publiczność mówi:
+            A: ${audiencePercentages[0]}%
+            B: ${audiencePercentages[1]}%
+            C: ${audiencePercentages[2]}%
+            D: ${audiencePercentages[3]}%`);
+
+            document.querySelector('#lifelines button:nth-child(3)').disabled = true;
+
+            showMessage("Użyłeś Pomoc Publiczności! Publiczność udziela odpowiedzi.", true);
+        }
+
+        function updateProgressBar() {
+            const progressBarInner = document.getElementById("progress-bar-inner");
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressBarInner.style.width = `${progress}%`;
+        }
+
+        const timePerQuestion = 20;
+        let timer;
+        let timerRunning = false;
+        const messageContainer = document.getElementById("message-container");
+
+        function startTimer() {
+            if (!timerRunning) {
+                let timeLeft = timePerQuestion;
+                updateTimerDisplay(timeLeft);
+
+                timer = setInterval(() => {
+                    timeLeft--;
+
+                    if (timeLeft < 0) {
+                        clearInterval(timer);
+                        handleTimeout();
+                    } else {
+                        updateTimerDisplay(timeLeft);
+                    }
+                }, 1000);
+
+                timerRunning = true;
+            }
+        }
+
+        function updateTimerDisplay(time) {
+            messageContainer.innerHTML = `<div class="message">Czas na odpowiedź: ${time} s</div>`;
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+            timerRunning = false;
+            messageContainer.innerHTML = "";
+        }
+
+        function handleTimeout() {
+            showMessage("Czas minął! Zaczynasz od nowego pytania.", false);
+            stopTimer();
+            resetGame();
+            showRandomQuestionAfterTimeout();
+            startTimer();
+        }
+
+        function showRandomQuestionAfterTimeout() {
+            currentQuestion = Math.floor(Math.random() * questions.length);
+            showQuestion();
+        }
+
+        window.onload = startQuiz;
+    </script>
+
+    <a href="glowna.html" id="strona-glowna-button">
+        <button class="strona-glowna-btn">STRONA GŁÓWNA</button>
+    </a>
+</body>
+</html>

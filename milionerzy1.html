@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Milionerzy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+
+        #quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        #question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        
+        .answer {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #ddd;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .answer:hover {
+            background-color: #c0c0c0;
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+        }
+
+        #lifelines {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        #lifelines button {
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #lifelines button:hover {
+            background-color: #45a049;
+        }
+
+        #message-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .message {
+            font-size: 1.2em;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #progress-bar {
+            margin-top: 20px;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #progress-bar-inner {
+            height: 100%;
+            width: 0;
+            background-color: #4CAF50;
+            transition: width 0.5s ease;
+            
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <script>
+        function shuffleArray(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+        }
+      </script>
+      
+
+    <header>
+        <h1>Quiz Milionerzy</h1>
+    </header>
+
+    <div id="quiz-container">
+        <div id="question"></div>
+        <div id="answers"></div>
+        <div id="score">Aktualna wygrana: $0</div>
+        <div id="lifelines">
+            <button onclick="useFiftyFifty()">
+                <i class="fas fa-percentage"></i> 50/50
+            </button>
+            <button onclick="usePhoneAFriend()">
+                <i class="fas fa-phone-alt"></i> Telefon do przyjaciela
+            </button>
+            <button onclick="useAskTheAudience()">
+                <i class="fas fa-users"></i> Publiczność
+            </button>
+        </div>
+        
+        <div id="message-container"></div>
+        <div id="progress-bar">
+            <div id="progress-bar-inner"></div>
+        </div>
+    </div>
+
+    <script>
+        let questions = [
+            { question: "Stolica Francji?", answers: ["Berlin", "Madryt", "Rzym", "Paryż"], correctAnswer: 3 },
+            { question: "Najwyższy szczyt Europy?", answers: ["Mont Blanc", "Elbrus", "Matterhorn", "Everest"], correctAnswer: 0 },
+            { question: "Autor 'Władcy Pierścieni'?", answers: ["J.K. Rowling", "George R.R. Martin", "J.R.R. Tolkien", "C.S. Lewis"], correctAnswer: 2 },
+            { question: "Gdzie kręcono film 'Gladiator'?", answers: ["Rzym", "Grecja", "Maroko", "Malta"], correctAnswer: 3 },
+            { question: "Największy kontynent?", answers: ["Afryka", "Ameryka Północna", "Azja", "Europa"], correctAnswer: 2 },
+            { question: "Kto zagrał w filmie 'Incepcja'?", answers: ["Leonardo DiCaprio", "Tom Hardy", "Brad Pitt", "Christian Bale"], correctAnswer: 0 },
+            { question: "Gdzie znajduje się Wielki Kanion?", answers: ["Arizona, USA", "Kolorado, USA", "Kalifornia, USA", "Nevada, USA"], correctAnswer: 0 },
+            { question: "Który film zdobył najwięcej Oscara?", answers: ["Titanic", "Ben-Hur", "La La Land", "Władca Pierścieni: Powrót króla"], correctAnswer: 3 },
+            { question: "Największe jezioro na świecie?", answers: ["Morze Kaspijskie", "Jezioro Bajkał", "Jezioro Michigan", "Jezioro Wiktorii"], correctAnswer: 1 },
+            { question: "Kto wyreżyserował 'Szósty zmysł'?", answers: ["M. Night Shyamalan", "Christopher Nolan", "Quentin Tarantino", "Steven Spielberg"], correctAnswer: 0 },
+            { question: "W którym kraju znajduje się Krzywa Wieża?", answers: ["Włochy", "Francja", "Niemcy", "Polska"], correctAnswer: 0 },
+            { question: "Która planeta jest znana jako 'Czerwona Planeta'?", answers: ["Ziemia", "Jowisz", "Mars", "Wenus"], correctAnswer: 2 },
+            { question: "Które miasto jest stolicą Japonii?", answers: ["Pekin", "Tokio", "Seul", "Osaka"], correctAnswer: 1 },
+            { question: "Ile kontynentów jest na świecie?", answers: ["4", "6", "7", "5"], correctAnswer: 2 },
+            { question: "Kto napisał 'Romeo i Julia'?", answers: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Fyodor Dostoevsky"], correctAnswer: 1 },
+            { question: "Która planeta jest największa w Układzie Słonecznym?", answers: ["Mars", "Jowisz", "Ziemia", "Wenus"], correctAnswer: 1 },
+            { question: "W którym roku odbyła się pierwsza podróż człowieka na Księżyc?", answers: ["1969", "1972", "1961", "1975"], correctAnswer: 0 },
+            { question: "Który kolor dominuje na fladze Stanów Zjednoczonych?", answers: ["Czerwony", "Biały", "Niebieski", "Żółty"], correctAnswer: 2 },
+            { question: "Jakie zwierzę jest symbolizowane przez znak zodiaku 'Wodnik'?", answers: ["Ryba", "Skorpion", "Baran", "Wodnik"], correctAnswer: 3 },
+            { question: "Kto jest autorem 'Harry'ego Pottera'?", answers: ["J.R.R. Tolkien", "J.K. Rowling", "George R.R. Martin", "Suzanne Collins"], correctAnswer: 1 },
+            { question: "Ile stron ma standardowa książka A4?", answers: ["50", "100", "200", "500"], correctAnswer: 2 },
+            { question: "W którym roku założono Organizację Narodów Zjednoczonych (ONZ)?", answers: ["1945", "1918", "1932", "1956"], correctAnswer: 0 },
+            { question: "Który kraj jest największym na świecie producentem kawy?", answers: ["Brazylia", "Kolumbia", "Etiopia", "Wietnam"], correctAnswer: 0 },
+            { question: "W którym roku rozpadł się Związek Radziecki?", answers: ["1989", "1991", "1975", "1995"], correctAnswer: 1 },
+            { question: "Kim był pierwszy prezydent Stanów Zjednoczonych?", answers: ["Thomas Jefferson", "John Adams", "George Washington", "Abraham Lincoln"], correctAnswer: 2 },
+            { question: "Która rzeka jest najdłuższą na świecie?", answers: ["Nil", "Amazonka", "Missisipi", "Jangcy"], correctAnswer: 0 },
+            { question: "Kto namalował obraz 'Mona Lisa'?", answers: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"], correctAnswer: 2 },
+            { question: "Który kolor jest najjaśniejszy w widmie światła?", answers: ["Czerwony", "Niebieski", "Zielony", "Biały"], correctAnswer: 3 },
+            { question: "Ile planet krąży wokół Słońca?", answers: ["6", "8", "9", "10"], correctAnswer: 1 },
+            { question: "Które państwo jest najmniejsze na świecie pod względem powierzchni?", answers: ["Monako", "Watikan", "San Marino", "Nauru"], correctAnswer: 1 },
+            { question: "Który zespół muzyczny nagrał album 'The Dark Side of the Moon'?", answers: ["The Beatles", "Led Zeppelin", "Pink Floyd", "Queen"], correctAnswer: 2 },
+            { question: "W którym roku odbyła się pierwsza edycja Letnich Igrzysk Olimpijskich?", answers: ["1896", "1900", "1920", "1936"], correctAnswer: 0 },
+            { question: "Który kraj jest największym producentem banana na świecie?", answers: ["Ekwador", "Kostaryka", "Filipiny", "Indie"], correctAnswer: 0 },
+            { question: "W którym roku rozpoczęła się II wojna światowa?", answers: ["1936", "1939", "1941", "1945"], correctAnswer: 1 },
+            { question: "Która planeta jest znana jako 'Jowiszowy księżyc'?", answers: ["Europa", "Ganymedes", "Io", "Kallisto"], correctAnswer: 0 },
+            { question: "Kto był pierwszym prezydentem Rzeczypospolitej Polskiej?", answers: ["Lech Wałęsa", "Aleksander Kwaśniewski", "Bronisław Komorowski", "Andrzej Duda"], correctAnswer: 0 },
+            { question: "Która z rzek jest najdłuższą w Polsce?", answers: ["Odra", "Wisła", "Warta", "Bug"], correctAnswer: 1 },
+            { question: "Ile wynosi przyspieszenie ziemskie na powierzchni Ziemi?", answers: ["9.8 m/s²", "7.2 m/s²", "12.5 m/s²", "6.5 m/s²"], correctAnswer: 0 },
+            { question: "Które zwierzę jest największe na świecie?", answers: ["Słoń", "Błękitny wieloryb", "Szczerbak", "Żyrafa"], correctAnswer: 1 },
+            { question: "W którym roku Kolumb dotarł do Ameryki?", answers: ["1402", "1492", "1521", "1588"], correctAnswer: 1 },
+            { question: "Kto jest autorem malarstwa 'Nocna Straż'?", answers: ["Vincent van Gogh", "Pablo Picasso", "Rembrandt", "Leonardo da Vinci"], correctAnswer: 2 },
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const questionElement = document.getElementById("question");
+        const answersElement = document.getElementById("answers");
+        const scoreElement = document.getElementById("score");
+
+        function startQuiz() {
+            shuffleArray(questions);
+            showQuestion();
+            updateProgressBar();
+            
+        }
+
+        function showQuestion() {
+            const current = questions[currentQuestion];
+            questionElement.textContent = current.question;
+
+            answersElement.innerHTML = "";
+            current.answers.forEach((answer, index) => {
+                const answerElement = document.createElement("div");
+                answerElement.classList.add("answer");
+                answerElement.textContent = answer;
+                answerElement.addEventListener("click", () => checkAnswer(index));
+                answersElement.appendChild(answerElement);
+            });
+        }
+
+        function checkAnswer(index) {
+            if (index === questions[currentQuestion].correctAnswer) {
+                score += 1000;
+                scoreElement.textContent = `Aktualna wygrana: $${score}`;
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    showQuestion();
+                } else {
+                    showMessage("Gratulacje! Wygrałeś milion!", true);
+                    resetGame();
+                }
+            } else {
+                showMessage("Niestety, zła odpowiedź. Zaczynasz od początku.", false);
+                resetGame();
+            }
+            updateProgressBar();
+        }
+
+        function resetGame() {
+            currentQuestion = 0;
+            score = 0;
+            showQuestion();
+            scoreElement.textContent = `Aktualna wygrana: $${score}`;
+            resetLifelines();
+            updateProgressBar();
+        }
+
+        function resetLifelines() {
+            const answerElements = document.querySelectorAll('.answer');
+            answerElements.forEach((answer) => {
+                answer.style.display = 'block';
+            });
+
+            const lifelineButtons = document.querySelectorAll('#lifelines button');
+            lifelineButtons.forEach((button) => {
+                button.disabled = false;
+            });
+
+            const messageContainer = document.getElementById("message-container");
+            messageContainer.innerHTML = "";
+        }
+
+        function showMessage(message, isSuccess) {
+            const messageContainer = document.getElementById("message-container");
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.style.backgroundColor = isSuccess ? "#4CAF50" : "#e74c3c";
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+        }
+
+        function useFiftyFifty() {
+    const currentAnswers = questions[currentQuestion].answers;
+    const correctAnswerIndex = questions[currentQuestion].correctAnswer;
+
+    // Wybierz jedną niepoprawną odpowiedź
+    let randomIncorrectIndex = getRandomIncorrectIndex(correctAnswerIndex);
+    let incorrectAnswers = [randomIncorrectIndex];
+
+    // Dodaj poprawną odpowiedź
+    incorrectAnswers.push(correctAnswerIndex);
+
+    // Ukryj odpowiedzi na stronie
+    const answerElements = document.querySelectorAll('.answer');
+    answerElements.forEach((answer, index) => {
+        if (!incorrectAnswers.includes(index)) {
+            answer.style.display = 'none';
+        }
+    });
+
+    document.querySelector('#lifelines button:nth-child(1)').disabled = true;
+
+
+}
+
+function getRandomIncorrectIndex(correctIndex) {
+    let randomIncorrectIndex;
+    do {
+        randomIncorrectIndex = Math.floor(Math.random() * 4);
+    } while (randomIncorrectIndex === correctIndex);
+
+    return randomIncorrectIndex;
+        }
+
+        function usePhoneAFriend() {
+            const currentAnswers = questions[currentQuestion].answers;
+            const correctAnswerIndex = questions[currentQuestion].correctAnswer;
+
+            const friendAnswer = currentAnswers[correctAnswerIndex];
+
+            alert(`Przyjaciel mówi: "${friendAnswer}"`);
+
+            document.querySelector('#lifelines button:nth-child(2)').disabled = true;
+
+            showMessage("Użyłeś Telefonu do Przyjaciela! Przyjaciel podaje poprawną odpowiedź.", true);
+        }
+
+        function useAskTheAudience() {
+            const currentAnswers = questions[currentQuestion].answers;
+            const correctAnswerIndex = questions[currentQuestion].correctAnswer;
+
+            const audiencePercentages = [];
+            let remainingPercentage = 100;
+
+            for (let i = 0; i < 4; i++) {
+                if (i === correctAnswerIndex) {
+                    audiencePercentages.push(Math.floor(Math.random() * 70) + 30);
+                } else {
+                    const randomPercentage = Math.floor(Math.random() * remainingPercentage);
+                    audiencePercentages.push(randomPercentage);
+                    remainingPercentage -= randomPercentage;
+                }
+            }
+
+            alert(`Publiczność mówi:
+            A: ${audiencePercentages[0]}%
+            B: ${audiencePercentages[1]}%
+            C: ${audiencePercentages[2]}%
+            D: ${audiencePercentages[3]}%`);
+
+            document.querySelector('#lifelines button:nth-child(3)').disabled = true;
+
+            showMessage("Użyłeś Pomoc Publiczności! Publiczność udziela odpowiedzi.", true);
+        }
+
+        function updateProgressBar() {
+            const progressBarInner = document.getElementById("progress-bar-inner");
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressBarInner.style.width = `${progress}%`;
+        }
+
+        
+
+        // Wywołaj funkcję startQuiz() przy ładowaniu strony
+        window.onload = startQuiz;
+    </script>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <!-- Pozostała część nagłówka HTML -->
+    </head>
+    <body>
+        <script>
+            
+            const timePerQuestion = 20;
+let timer;
+let timerRunning = false;
+const messageContainer = document.getElementById("message-container");
+
+function startTimer() {
+    if (!timerRunning) {
+        let timeLeft = timePerQuestion;
+        updateTimerDisplay(timeLeft);
+
+        timer = setInterval(() => {
+            timeLeft--;
+
+            if (timeLeft < 0) {
+                clearInterval(timer);
+                handleTimeout();
+            } else {
+                updateTimerDisplay(timeLeft);
+            }
+        }, 1000);
+
+        timerRunning = true;
+    }
+}
+
+function updateTimerDisplay(time) {
+    messageContainer.innerHTML = `<div class="message">Czas na odpowiedź: ${time} s</div>`;
+}
+
+function stopTimer() {
+    clearInterval(timer);
+    timerRunning = false;
+    messageContainer.innerHTML = "";
+}
+
+function handleTimeout() {
+    showMessage("Czas minął! Zaczynasz od nowego pytania.", false);
+    stopTimer();
+    resetGame();
+    showRandomQuestionAfterTimeout();
+    startTimer();
+}
+
+function showRandomQuestionAfterTimeout() {
+    currentQuestion = Math.floor(Math.random() * questions.length);
+    showQuestion();
+}
+
+function checkAnswer(index) {
+    stopTimer();
+
+    if (index === questions[currentQuestion].correctAnswer) {
+        score += 1000;
+        scoreElement.textContent = `Aktualna wygrana: $${score}`;
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+        } else {
+            showMessage("Gratulacje! Wygrałeś milion!", true);
+            resetGame();
+        }
+    } else {
+        showMessage("Niestety, zła odpowiedź. Zaczynasz od początku.", false);
+        resetGame();
+    }
+
+    showQuestion();
+    updateProgressBar();
+    startTimer();
+}
+
+function resetGame() {
+    stopTimer();
+    currentQuestion = 0;
+    score = 0;
+    showQuestion();
+    scoreElement.textContent = `Aktualna wygrana: $${score}`;
+    resetLifelines();
+    updateProgressBar();
+    startTimer();
+}
+
+// Wywołaj funkcję startQuiz() przy ładowaniu strony
+window.onload = startQuiz;
+
+        </script>
+        <script>
+            
+        </script>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gra w Zgadywanie</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f8f8;
+        text-align: center;
+    }
+
+    #game-container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    #hint {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+    }
+
+    #answer-input {
+        width: 80%;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    #result {
+        font-size: 1.2em;
+        margin-top: 20px;
+    }
+</style>
+
+<body>
+    <div id="game-container">
+        <h1>Gra w Zgadywanie</h1>
+        <p id="hint">Podpowiedź: <span id="hint-text"></span></p>
+        <input type="text" id="answer-input" placeholder="Twoja odpowiedź">
+        <button onclick="checkAnswer()">Sprawdź</button>
+        <p id="result"></p>
+        <button onclick="nextRound()">Następna podpowiedź</button>
+        <button onclick="skipRound()">Pomiń pytanie</button>
+        <button onclick="revealAnswer()" id="reveal-answer-btn" disabled>Odsłoń odpowiedź</button>
+        <p id="attempts">Liczba prób: <span id="attempt-count">0</span></p>
+    </div>
+
+    <script>
+        const hints = [
+            { text: "To jest zwierzę domowe.", answer: "kot", difficulty: "łatwe" },
+            { text: "To jest stolica Polski.", answer: "warszawa", difficulty: "łatwe" },
+            { text: "To jest gatunek drzewa.", answer: "dąb", difficulty: "łatwe" },
+            { text: "To zwierzę jest największe na świecie.", answer: "słoń", difficulty: "średnie" },
+            { text: "To jest miasto, w którym znajduje się Wieża Eiffla.", answer: "paryż", difficulty: "średnie" },
+            { text: "To zwierzę jest symbolem Chin.", answer: "panda", difficulty: "średnie" },
+            { text: "To jest planeta, na której znajduje się Wielki Czerwony Plamy.", answer: "jowisz", difficulty: "trudne" },
+            { text: "To jest najwyższy szczyt w Himalajach.", answer: "everest", difficulty: "trudne" },
+            { text: "To jest główny składnik zupy miso.", answer: "tofu", difficulty: "trudne" },
+            { text: "To miejsce było sceną bitwy podczas II wojny światowej.", answer: "stalingrad", difficulty: "bardzo trudne" },
+            { text: "To jest pierwiastek chemiczny o najwyższym stopniu radioaktywności.", answer: "polon", difficulty: "bardzo trudne" }
+        ];
+
+        let currentHintIndex = 0;
+        let attempts = 0;
+        const maxAttempts = 3;
+        let extraHintsUsed = 0;
+        const maxExtraHints = 1;
+
+        function displayHint() {
+            const hintElement = document.getElementById("hint-text");
+            hintElement.textContent = hints[currentHintIndex].text;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer-input").value.toLowerCase();
+            const correctAnswer = hints[currentHintIndex].answer;
+
+            const resultElement = document.getElementById("result");
+            const attemptCountElement = document.getElementById("attempt-count");
+            const revealAnswerBtn = document.getElementById("reveal-answer-btn");
+            const attemptsDisplay = document.getElementById("attempts");
+
+            if (attempts < maxAttempts) {
+                if (userAnswer === correctAnswer) {
+                    resultElement.textContent = "Prawidłowa odpowiedź!";
+                    resultElement.style.color = "green";  // Kolor zielony dla poprawnej odpowiedzi
+                    setTimeout(nextRound, 1000);  // Przejście do następnego pytania po sekundzie
+                } else {
+                    attempts++;
+                    attemptCountElement.textContent = attempts;
+
+                    if (attempts === maxAttempts) {
+                        resultElement.textContent = "Przekroczyłeś limit prób. Kliknij 'Odsłoń odpowiedź', aby zobaczyć poprawną odpowiedź.";
+                        revealAnswerBtn.disabled = false;
+                        attemptsDisplay.style.color = "red";
+                    } else {
+                        resultElement.textContent = "Błędna odpowiedź. Spróbuj ponownie.";
+                        resultElement.style.color = "red";  // Kolor czerwony dla błędnej odpowiedzi
+                    }
+                }
+            }
+        }
+
+        function nextRound() {
+            const answerInput = document.getElementById("answer-input");
+            const resultElement = document.getElementById("result");
+            const attemptCountElement = document.getElementById("attempt-count");
+            const revealAnswerBtn = document.getElementById("reveal-answer-btn");
+            const attemptsDisplay = document.getElementById("attempts");
+
+            answerInput.value = "";
+            resultElement.textContent = "";
+            attemptCountElement.textContent = "0";
+            attempts = 0;
+            revealAnswerBtn.disabled = true;
+            attemptsDisplay.style.color = "black";
+            currentHintIndex = (currentHintIndex + 1) % hints.length;
+            displayHint();
+        }
+
+        function skipRound() {
+            const revealAnswerBtn = document.getElementById("reveal-answer-btn");
+            const attemptsDisplay = document.getElementById("attempts");
+
+            attempts = maxAttempts;
+            revealAnswerBtn.disabled = false;
+            attemptsDisplay.style.color = "red";
+            nextRound();
+        }
+
+        function revealAnswer() {
+            const correctAnswer = hints[currentHintIndex].answer;
+            const resultElement = document.getElementById("result");
+            resultElement.textContent = `Poprawna odpowiedź to: ${correctAnswer}.`;
+            resultElement.style.color = "green";  // Kolor zielony dla poprawnej odpowiedzi
+            setTimeout(nextRound, 1000);  // Przejście do następnego pytania po sekundzie
+        }
+
+        function showExtraHint() {
+            if (extraHintsUsed < maxExtraHints) {
+                const hintElement = document.getElementById("hint-text");
+                hintElement.textContent += ` Dodatkowa podpowiedź: ${hints[currentHintIndex].difficulty}.`;
+                extraHintsUsed++;
+            }
+        }
+
+        window.onload = function () {
+            displayHint();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wisielec</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+
+        #hangman-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #word-display {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        #keyboard {
+            display: grid;
+            grid-template-columns: repeat(7, 50px);
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .letter-button {
+            width: 50px;
+            height: 50px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .letter-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Wisielec</h1>
+    </header>
+
+    <div id="hangman-container">
+        <div id="word-display"></div>
+        <div id="keyboard"></div>
+    </div>
+
+    <script>
+        const questions = [
+
+            {
+                question: "Jakie zwierzę jest największe na świecie?",
+                answer: "WIELORYB"
+            },
+            {
+                question: "Jaki ptak potrafi nauczyć się mówić?",
+                answer: "PAPUGA"
+            },
+
+            {
+                question: "Jakie jest najpopularniejsze domowe zwierzę?",
+                answer: "PIES"
+            },
+            {
+                question: "Jak nazywa się największy lądowy drapieżnik?",
+                answer: "NIEDŹWIEDŹ"
+            },
+            {
+                question: "Jaki gatunek zwierzęcia symbolizuje mądrość?",
+                answer: "SOWA"
+            },
+            {
+                question: "Które zwierzę jest znane ze swojego trąbienia?",
+                answer: "SŁOŃ"
+            },
+			{
+    question: "Gdzie żyją kangury?",
+    answer: "AUSTRALIA"
+},
+{
+    question: "Które zwierzę potrafi latać do tyłu?",
+    answer: "KOLIBER"
+},
+{
+    question: "Jak nazywa się największy gatunek małpy?",
+    answer: "GORYL"
+},
+{
+    question: "Jaki gatunek zwierzęcia to symbol Chin?",
+    answer: "PANDA"
+},
+{
+    question: "Które zwierzę ma najdłuższy okres życia?",
+    answer: "ŻÓŁW"
+},
+{
+    question: "Jak nazywa się grupa wilków?",
+    answer: "WATAHA"
+},
+{
+    question: "Gdzie żyją pingwiny?",
+    answer: "ANTARKTYDA"
+},
+{
+    question: "Jak nazywa się największy gatunek rekinów?",
+    answer: "WIELORYBIA"
+},
+{
+    question: "Jaki ptak potrafi obrócić swoją głowę o 180 stopni?",
+    answer: "SOWA"
+},
+{
+    question: "Gdzie żyją surykatki?",
+    answer: "AFRYKA"
+},
+
+        ];
+
+        const words = questions.map(question => question.answer.toUpperCase());
+        let currentQuestionIndex = 0;
+        let selectedQuestion = {};
+        let selectedWord = '';
+        let guessedWord = [];
+        let incorrectGuesses = [];
+        let hangmanParts = 0;
+
+        const wordDisplay = document.getElementById('word-display');
+        const keyboard = document.getElementById('keyboard');
+
+        function startHangman() {
+            // Wybierz pytanie i hasło
+            selectedQuestion = questions[currentQuestionIndex];
+            selectedWord = selectedQuestion.answer;
+            guessedWord = Array(selectedWord.length).fill('_');
+            incorrectGuesses = [];
+            hangmanParts = 0;
+
+            // Wyświetl pytanie
+            alert(selectedQuestion.question);
+
+            // Wyświetl stan początkowy
+            updateWordDisplay();
+            createKeyboard();
+        }
+
+        function updateWordDisplay() {
+            wordDisplay.textContent = guessedWord.join(' ');
+        }
+
+        function createKeyboard() {
+            const alphabet = 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ';
+
+            // Usuń przyciski z poprzedniej rundy
+            keyboard.innerHTML = '';
+
+            for (let letter of alphabet) {
+                const button = document.createElement('button');
+                button.textContent = letter;
+                button.classList.add('letter-button');
+                button.addEventListener('click', () => handleGuess(letter));
+                keyboard.appendChild(button);
+            }
+        }
+
+        function handleGuess(letter) {
+            if (selectedWord.includes(letter)) {
+                for (let i = 0; i < selectedWord.length; i++) {
+                    if (selectedWord[i] === letter) {
+                        guessedWord[i] = letter;
+                    }
+                }
+
+                if (!guessedWord.includes('_')) {
+                    endGame(true);
+                }
+            } else {
+                incorrectGuesses.push(letter);
+                hangmanParts++;
+
+                if (hangmanParts === 6) {
+                    endGame(false);
+                }
+            }
+
+            updateWordDisplay();
+            disableLetterButton(letter);
+        }
+
+        function disableLetterButton(letter) {
+            const button = document.querySelector(`.letter-button:contains('${letter}')`);
+            button.disabled = true;
+            button.style.backgroundColor = '#ddd';
+            button.style.color = '#888';
+        }
+
+        function endGame(isWinner) {
+            const message = isWinner ? 'Gratulacje! Poprawna odpowiedź to: ' + selectedWord : 'Niestety, przegrałeś. Poprawna odpowiedź to: ' + selectedWord;
+            alert(message);
+
+            if (isWinner) {
+                moveToNextQuestion();
+            } else {
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            wordDisplay.textContent = '';
+            currentQuestionIndex = 0;
+            startHangman();
+        }
+
+        function moveToNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                startHangman();
+            } else {
+                alert('To były wszystkie pytania!');
+                resetGame();
+            }
+        }
+
+        // Funkcja pomocnicza do jQuery-like :contains selector
+        function contains(selector, text) {
+            const elements = document.querySelectorAll(selector);
+            return Array.from(elements).find(element => element.textContent.includes(text));
+        }
+
+        // Uruchom grę po załadowaniu strony
+        document.addEventListener('DOMContentLoaded', startHangman);
+    </script>
+</body>
+</html>

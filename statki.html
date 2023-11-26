@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gra w Statki</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+
+        #game-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .board-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .board {
+            margin-bottom: 20px;
+        }
+
+        .board-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .board-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .board-cell {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            background-color: #ddd;
+            border: 1px solid #999;
+            text-align: center;
+        }
+
+        .board-label {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+        }
+
+        #result {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Gra w Statki</h1>
+        <div class="board-container">
+            <div class="board player-board" id="player-board"></div>
+            <div class="board computer-board" id="computer-board"></div>
+        </div>
+        <p id="result"></p>
+        <button onclick="startGame()">Rozpocznij grę</button>
+    </div>
+
+    <script>
+        const boardSize = 10;
+        const shipLengths = [5, 4, 3, 3, 2];
+        const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+        let playerBoard, computerBoard;
+        let playerShips, computerShips;
+        let currentPlayerTurn;
+
+        function initializeBoards() {
+            playerBoard = initializeBoard();
+            computerBoard = initializeBoard();
+            playerShips = placeShips(playerBoard);
+            computerShips = placeShips(computerBoard);
+            currentPlayerTurn = 'player';
+        }
+
+        function initializeBoard() {
+            const board = [];
+            for (let i = 0; i < boardSize; i++) {
+                const row = [];
+                for (let j = 0; j < boardSize; j++) {
+                    row.push({ isShip: false, isHit: false });
+                }
+                board.push(row);
+            }
+            return board;
+        }
+
+        function placeShips(board) {
+            const ships = [];
+            for (const length of shipLengths) {
+                let ship;
+                do {
+                    ship = generateRandomShip(length);
+                } while (!isValidShipPlacement(ship, board));
+                ships.push(ship);
+                placeShipOnBoard(ship, board);
+            }
+            return ships;
+        }
+
+        function generateRandomShip(length) {
+            const isVertical = Math.random() < 0.5;
+            const startRow = Math.floor(Math.random() * (boardSize - (isVertical ? length : 0)));
+            const startCol = Math.floor(Math.random() * (boardSize - (isVertical ? 0 : length)));
+
+            const ship = {
+                isVertical,
+                positions: []
+            };
+
+            for (let i = 0; i < length; i++) {
+                ship.positions.push({
+                    row: isVertical ? startRow + i : startRow,
+                    col: isVertical ? startCol : startCol + i
+                });
+            }
+
+            return ship;
+        }
+
+        function isValidShipPlacement(ship, board) {
+            for (const pos of ship.positions) {
+                if (
+                    pos.row < 0 || pos.row >= boardSize ||
+                    pos.col < 0 || pos.col >= boardSize ||
+                    board[pos.row][pos.col].isShip
+                ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function placeShipOnBoard(ship, board) {
+            for (const pos of ship.positions) {
+                board[pos.row][pos.col].isShip = true;
+            }
+        }
+
+        function startGame() {
+            initializeBoards();
+            renderBoards();
+        }
+
+        function renderBoards() {
+            renderBoard(playerBoard, 'player-board', 'playerClick');
+            renderBoard(computerBoard, 'computer-board', 'computerClick');
+        }
+
+        function renderBoard(board, containerId, clickHandler) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            // Add labels (A-J)
+            const labelRow = document.createElement('div');
+            labelRow.className = 'board-row';
+            labelRow.appendChild(document.createElement('div')); // Empty cell in the top-left corner
+
+            for (let i = 0; i < boardSize; i++) {
+                const labelCell = document.createElement('div');
+                labelCell.className = 'board-label';
+                labelCell.textContent = columns[i];
+                labelRow.appendChild(labelCell);
+            }
+
+            container.appendChild(labelRow);
+
+            for (let i = 0; i < boardSize; i++) {
+                const rowElement = document.createElement('div');
+                rowElement.className = 'board-row';
+
+                // Add row label (1-10)
+                const rowLabelCell = document.createElement('div');
+                rowLabelCell.className = 'board-label';
+                rowLabelCell.textContent = i + 1;
+                rowElement.appendChild(rowLabelCell);
+
+                for (let j = 0; j < boardSize; j++) {
+                    const cellElement = document.createElement('div');
+                    cellElement.className = 'board-cell';
+                    cellElement.dataset.row = i;
+                    cellElement.dataset.col = j;
+
+                    if (board[i][j].isShip && currentPlayerTurn === 'player') {
+                        cellElement.style.backgroundColor = 'blue';
+                    }
+                    if (board[i][j].isHit) {
+                        cellElement.style.backgroundColor = board[i][j].isShip ? 'red' : 'gray';
+                    }
+                    cellElement.addEventListener('click', () => window[clickHandler](i, j));
+                    rowElement.appendChild(cellElement);
+                }
+
+                container.appendChild(rowElement);
+            }
+        }
+
+        function playerClick(row, col) {
+            if (currentPlayerTurn === 'player' && !playerBoard[row][col].isHit) {
+                playerBoard[row][col].isHit = true;
+                checkGameResult();
+                currentPlayerTurn = 'computer';
+                setTimeout(computerMove, 500);
+            }
+            renderBoards();
+        }
+
+        function computerClick(row, col) {
+            // Do nothing - computer's turn
+        }
+
+        function computerMove() {
+            const [row, col] = getRandomMove();
+            if (!computerBoard[row][col].isHit) {
+                computerBoard[row][col].isHit = true;
+                checkGameResult();
+                currentPlayerTurn = 'player';
+            } else {
+                computerMove(); // Try again if the cell was already hit
+            }
+            renderBoards();
+        }
+
+        function getRandomMove() {
+            const row = Math.floor(Math.random() * boardSize);
+            const col = Math.floor(Math.random() * boardSize);
+            return [row, col];
+        }
+
+        function checkGameResult() {
+            const playerWon = computerShips.every(ship =>
+                ship.positions.every(pos => playerBoard[pos.row][pos.col].isHit)
+            );
+
+            const computerWon = playerShips.every(ship =>
+                ship.positions.every(pos => computerBoard[pos.row][pos.col].isHit)
+            );
+
+            if (playerWon || computerWon) {
+                const resultElement = document.getElementById('result');
+                resultElement.textContent = playerWon ? 'Wygrałeś!' : 'Przegrałeś.';
+            }
+        }
+
+        window.onload = function () {
+            startGame();
+        };
+    </script>
+</body>
+</html>

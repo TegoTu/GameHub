@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Państwo, Miasto</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+
+        #game-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #categories {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        #letter-display {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Państwo, Miasto</h1>
+        <p id="categories">Kategorie:</p>
+        <p id="letter-display">Litera: <span id="letter">?</span></p>
+        <input type="text" id="answer-input" placeholder="Twoja odpowiedź">
+        <button onclick="checkAnswer()">Sprawdź</button>
+        <p id="result"></p>
+        <button onclick="nextRound()">Następna litera</button>
+    </div>
+
+    <script>
+        const categories = ["Państwo", "Miasto", "Rzeka", "Zwierzę"];
+        let currentCategoryIndex = 0;
+        let currentLetter = getRandomLetter();
+        let attempts = 0;
+        const maxAttempts = 3;
+
+        function getRandomLetter() {
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const randomIndex = Math.floor(Math.random() * alphabet.length);
+            return alphabet[randomIndex];
+        }
+
+        function displayGameInfo() {
+            const categoriesElement = document.getElementById("categories");
+            const letterElement = document.getElementById("letter");
+
+            categoriesElement.textContent = `Kategoria: ${categories[currentCategoryIndex]}`;
+            letterElement.textContent = currentLetter;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer-input").value.toUpperCase();
+            const resultElement = document.getElementById("result");
+
+            if (attempts < maxAttempts) {
+                if (userAnswer.startsWith(currentLetter)) {
+                    resultElement.textContent = "Poprawna odpowiedź!";
+                    resultElement.style.color = "green";
+                    nextRound();
+                } else {
+                    attempts++;
+                    resultElement.textContent = "Odpowiedź musi zaczynać się od podanej litery. Spróbuj ponownie.";
+                    resultElement.style.color = "red";
+                }
+            }
+        }
+
+        function nextRound() {
+            const answerInput = document.getElementById("answer-input");
+            const resultElement = document.getElementById("result");
+
+            answerInput.value = "";
+            resultElement.textContent = "";
+            attempts = 0;
+            currentLetter = getRandomLetter();
+            displayGameInfo();
+        }
+
+        window.onload = function () {
+            displayGameInfo();
+        };
+    </script>
+</body>
+</html>
